@@ -1,0 +1,42 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+    <h1>Title: {{ book.title }}</h1>
+
+    <p><strong>Author:</strong> <a href="{{ book.author.get_absolute_url }}">{{ book.author }}</a></p>
+    <p><strong>Summary:</strong> {{ book.summary }}</p>
+    <p><strong>ISBN:</strong> {{ book.isbn }}</p>
+    <p><strong>Genre:</strong> {% for genre in book.genre.all %} {{ genre }}{% if not forloop.last %}, {% endif %}{% endfor %}</p>
+    {% if perms.catalog.change_book %}
+        <a href="{% url 'book_update' book.id %}">Update book</a> <br>
+    {% endif %}
+    {% if perms.catalog.delete_book %}
+        <a href="{% url 'book_delete' book.id %}">Delete book</a>
+    {% endif %}
+
+
+    <div style="margin-left:20px;margin-top:20px">
+        <h4>Copies</h4>
+        {% if perms.catalog.add_bookinstance %}
+            <a href="{% url 'bookinstance_create' book.id %}">Add copy</a>
+        {% endif %}
+        {% for copy in book.bookinstance_set.all %}
+            <hr>
+            <p class="{% if copy.status == 'a' %}text-success{% elif copy.status == 'o' %}text-danger{% else %}text-warning{% endif %}">{{ copy.get_status_display }}</p>
+            {% if copy.status != 'a' %}
+                <p><strong>Due to be returned:</strong> {{copy.due_back}}</p>
+                {% if copy.status == 'o' and perms.catalog.change_bookinstance %}
+                    <p><strong>Borrower:</strong> {{copy.borrower.username}}</p>
+                {% endif %}
+            {% endif %}
+            <p><strong>Imprint:</strong> {{copy.imprint}}</p>
+
+            {% if perms.catalog.change_bookinstance %}
+                <a href="{% url 'bookinstance_update' copy.id %}">Update copy</a> <br>
+                <a href="{% url 'bookinstance_delete' copy.id %}">Delete</a>
+            {% endif %}
+
+            <!--<p class="text-muted"><strong>Id:</strong> {{copy.id}}</p> -->
+        {% endfor %}
+    </div>
+{% endblock %}

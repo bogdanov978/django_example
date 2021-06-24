@@ -1,0 +1,31 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+    <h1>{{ author.last_name }} {{ author.first_name }}</h1>
+
+    {% if author.date_of_birth %}
+        {{author.date_of_birth}} -
+        {% if author.date_of_death %}
+            {{author.date_of_death}}
+        {% else %}
+            ...
+        {% endif %}
+    {% endif %}
+
+    {% if perms.catalog.change_author %}
+        <a href="{% url 'author_update' author.id %}">Update author</a> <br>
+    {% endif %}
+
+    {% if perms.catalog.delete_author %}
+        <a href="{% url 'author_delete' author.id %}">Delete author</a>
+    {% endif %}
+
+    <hr>
+    <h4>Books:</h4>
+    {% for book in author.book_set.all %}
+        <hr>
+        <a href="{{ book.get_absolute_url }}">{{ book.title }}</a> <br>
+        {{ book.summary }}
+    {% endfor %}
+
+{% endblock %}
